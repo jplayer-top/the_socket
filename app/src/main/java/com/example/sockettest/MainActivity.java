@@ -64,19 +64,21 @@ public class MainActivity extends AppCompatActivity {
         mBtnStop.setOnClickListener(v -> {
             MediaManager.release();
         });
-        mSubscribe = Observable.interval(5, TimeUnit.SECONDS)
+        mSubscribe = getSubscribe();
+    }
+    private Disposable getSubscribe() {
+        return Observable.interval(5, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
                     System.out.println(TaskCenter.sharedCenter().isConnected() + "---------------");
-                    if (!TaskCenter.sharedCenter().isConnected()) {
+                    if (!isConnectByMe) {
                         Toast.makeText(this, "正在尝试 connect" + mEditIP.getText().toString() + ":" + mEditPort.getText().toString(),
                                 LENGTH_SHORT).show();
                         thisToConnect();
                     }
                 });
     }
-
     private void playAudio() {
         MediaManager.playSound(mEditAudio.getText().toString(), mp -> {
 
@@ -106,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
         thisToConnect();
     }
 
+
     @SuppressLint("CheckResult")
     private void thisToConnect() {
-        TaskCenter.sharedCenter().isAuto = true;
         TaskCenter.sharedCenter().connect(mEditIP.getText().toString(), Integer.parseInt(mEditPort.getText().toString()));
         TaskCenter.sharedCenter().setReceivedCallback(receicedMessage -> {
             Observable.just(1)
@@ -123,15 +125,18 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
         TaskCenter.sharedCenter().setDisconnectedCallback(e -> {
-            Observable.just(1)
+            Observable.just(e.getMessage())
                     .subscribeOn(Schedulers.io())
-                    .map(integer -> {
-                        return 1;
-                    })
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(integer -> {
-                        String text = textView_receive.getText().toString() + "断开连接" + "\n";
-                        textView_receive.setText(text);
+                    .subscribe(msg -> {
+                        String text = textView_receive.getText().toString() + "断开连接即将重试" + "\n";
+                        if (!msg.contains("Connection timed out")) {
+                            textView_receive.setText(text);
+                        }
+                        if (msg.contains("Connection reset")) {
+                            isConnectByMe =false;
+                            mSubscribe = getSubscribe();
+                        }
                     });
         });
         TaskCenter.sharedCenter().setConnectedCallback(() -> {
@@ -141,13 +146,14 @@ public class MainActivity extends AppCompatActivity {
                     .subscribe(integer -> {
                         String text = textView_receive.getText().toString() + "连接成功" + "\n";
                         textView_receive.setText(text);
-
+                        isConnectByMe = true;
                     });
         });
     }
 
+    public boolean isConnectByMe = false;
+
     public void disconnect(View view) {
-        TaskCenter.sharedCenter().isAuto = false;
         TaskCenter.sharedCenter().removeCallback();
         TaskCenter.sharedCenter().disconnect();
     }

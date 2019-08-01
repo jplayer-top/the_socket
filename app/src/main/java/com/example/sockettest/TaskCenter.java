@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by shensky on 2018/1/15.
@@ -124,7 +125,6 @@ public class TaskCenter {
         }
     }
 
-    public boolean isAuto = true;
 
     /**
      * 接收数据
@@ -148,11 +148,12 @@ public class TaskCenter {
                         }
                     }
                     Log.i(TAG, "接收成功");
+                    isReset = false;
                 }
             } catch (Exception e) {
-                Log.i(TAG, "接收失败" + e.getMessage());
-                SystemClock.sleep(1000);
-                if (e.getMessage().contains("Connection reset")) {
+                Log.i(TAG, "接收失败" + e.getMessage() + isReset);
+                SystemClock.sleep(3000);
+                if (!isReset && e.getMessage().contains("Connection reset")) {
                     if (disconnectedCallback != null) {
                         disconnectedCallback.callback(e);
                     }
@@ -164,11 +165,12 @@ public class TaskCenter {
                             e1.printStackTrace();
                         }
                     }
+                    isReset = true;
                 }
             }
         }
     }
-
+    public volatile boolean isReset = false;
     /**
      * 发送数据
      *
