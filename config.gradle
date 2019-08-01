@@ -1,0 +1,97 @@
+ext {
+
+    android = [
+            applicationId    : "top.jplayer.chat",
+            compileSdkVersion: 28,
+            buildToolsVersion: "28.0.0",
+            minSdkVersion    : 19,
+            targetSdkVersion : 28,
+            versionCode      : getGitCommitCount(),
+            versionName      : getGitBranch() + "_" + getGitTag() + "_" + getGitSHA(),
+            debug            : true
+    ]
+
+    dependVersion = [
+            androidSupportSdkVersion: "28.0.0",
+            retrofitSdkVersion      : "2.3.0",
+            glideSdkVersion         : "4.3.1",
+            rxJava                  : "2.1.5",
+            rxAndroid               : "2.0.1"
+    ]
+
+    url = [
+            "debug"  : "http://192.168.1.200:8804/",
+            "release": "http://192.168.1.200:8804/",
+    ]
+
+    key_store = [
+            "keyAlias"     : "chatalias",
+            "keyPassword"  : "123456",
+            "storeFile"    : "../chat.jks",
+            "storePassword": "123456"
+    ]
+
+    greendao = [
+            "greendao"     : 'org.greenrobot:greendao:3.2.2',
+            "schemaVersion": 1,
+            "targetGenDir" : "src/main/java",
+    ]
+
+    supportDeps = [
+            //--------  support  -------
+            supportv4  : "com.android.support:support-v4:$dependVersion.androidSupportSdkVersion",
+            appcompatv7: "com.android.support:appcompat-v7:$dependVersion.androidSupportSdkVersion",
+            cardview   : "com.android.support:cardview-v7:$dependVersion.androidSupportSdkVersion",
+            design     : "com.android.support:design:$dependVersion.androidSupportSdkVersion",
+            annotations: "com.android.support:support-annotations:$dependVersion.androidSupportSdkVersion",
+            constraint : "com.android.support.constraint:constraint-layout:1.1.3",
+            palette    : "com.android.support:palette-v7:$dependVersion.androidSupportSdkVersion",
+            multidex   : "com.android.support:multidex:1.0.2"
+    ]
+
+
+    rxJava = [
+            rxJava   : "io.reactivex.rxjava2:rxjava:$dependVersion.rxJava",
+            rxAndroid: "io.reactivex.rxjava2:rxandroid:$dependVersion.rxAndroid"
+    ]
+
+    adapterhelper = 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.3'
+    permission = 'com.yanzhenjie:permission:2.0.0-rc4'
+    eventbus = 'org.greenrobot:eventbus:3.1.1'
+    glide = "com.github.bumptech.glide:glide:$dependVersion.glideSdkVersion"
+    glideCompiler = "com.github.bumptech.glide:compiler:$dependVersion.glideSdkVersion"
+    glideOkhttp = "com.github.bumptech.glide:okhttp3-integration:$dependVersion.glideSdkVersion"
+
+    supportLibs = supportDeps.values()
+    rxJavaLibs = rxJava.values()
+    otherLibs = [adapterhelper,
+                 glide,
+                 eventbus,
+                 permission]
+    annotationProcessorLibs = [glideCompiler]
+
+}
+
+//获取Git 分支名，参考 https://blog.csdn.net/ouyang_peng/article/details/77802596
+static def getGitBranch() {
+//    return 'git symbolic-ref --short -q HEAD'.execute().text.trim() //例如 master
+    return "master"
+}
+
+//获取Git Tag
+def getGitTag() {
+//    return 'git describe --tags'.execute([], project.rootDir).text.trim() //例如 bqt20094
+    return "tag"
+}
+
+//获取Git 版本号
+static def getGitSHA() {
+//    return 'git rev-parse --short HEAD'.execute().text.trim()  //例如 3d5851e
+    return "3d5851e"
+}
+
+//获取Git 提交次数
+static def getGitCommitCount() {
+//    return 'git rev-list --count HEAD'.execute().text.trim().toInteger() //例如 8
+    return 1
+}
